@@ -5,7 +5,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/thediveo/fdooze/filedesc"
 )
 
 var _ = Describe("HaveLeakedFds matcher", func() {
@@ -49,20 +48,6 @@ var _ = Describe("HaveLeakedFds matcher", func() {
 			`(?m)Expected not to leak \d+ file descriptors:
 \s+fd \d+, flags 0x.* \(O_RDONLY,O_CLOEXEC\)
 \s+path: ".*/have_leaked_fds_test.go"`))
-	})
-
-	It("sorts oozing fds", func() {
-		n := func(fd int, link string) filedesc.FileDescriptor {
-			fdesc, err := filedesc.NewPathFd(fd, link)
-			Expect(err).WithOffset(1).NotTo(HaveOccurred())
-			return fdesc
-		}
-		fds := []filedesc.FileDescriptor{
-			n(1, "/bar1/baz"),
-			n(0, "/foo0/bar"),
-		}
-		Expect(dumpFds(fds, 0)).To(MatchRegexp(
-			`(?m)^fd 0, flags 0x.* \(.*\)\n\s+path: "/foo0/bar"\nfd 1, flags 0x.* \(.*\)\n\s+path: "/bar1/baz"$`))
 	})
 
 })

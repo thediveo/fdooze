@@ -41,33 +41,33 @@ func NewSocketFd(fd int, link string) (FileDescriptor, error) {
 
 	// Get the parameters from the call to socket(domain, type, protocol); we
 	// need to successfully retrieve these.
-	domain, err := unix.GetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_DOMAIN)
+	domain, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_DOMAIN)
 	if err != nil {
 		return nil, err
 	}
-	stype, err := unix.GetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_TYPE)
+	stype, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_TYPE)
 	if err != nil {
 		return nil, err
 	}
-	protocol, err := unix.GetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_PROTOCOL)
+	protocol, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_PROTOCOL)
 	if err != nil {
 		return nil, err
 	}
 	// Oh, and check if it is a listening socket...
-	listening, err := unix.GetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_ACCEPTCONN)
+	listening, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_ACCEPTCONN)
 	if err != nil {
 		return nil, err
 	}
 
 	// Now get the local and remote addresses, erm, "names"...
-	local, err := unix.Getsockname(fd)
+	local, err := getsockname(fd)
 	if err != nil {
 		return nil, err
 	}
 	// ...please note that getpeername(2) will fail if the socket isn't
 	// connected and then return ENOTCONN. This is expected, but all other error
 	// results are considered to be, well, errors.
-	peer, err := unix.Getpeername(fd)
+	peer, err := getpeername(fd)
 	if err != nil && err != unix.ENOTCONN {
 		return nil, err
 	}

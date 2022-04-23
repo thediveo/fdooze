@@ -1,6 +1,9 @@
 package filedesc
 
 import (
+	"errors"
+	"fmt"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/sys/unix"
@@ -8,10 +11,74 @@ import (
 
 var _ = Describe("socket descriptors", func() {
 
-	It("correctly fails for invalid fd number or socket inode number", func() {
+	It("correctly handles invalid fd number or socket inode number", func() {
 		Expect(NewSocketFd(0, "socket:[abc]")).Error().To(HaveOccurred())
 		Expect(NewSocketFd(-1, "socket:[123456]")).Error().To(HaveOccurred())
 		Expect(NewSocketFd(0, "socket:[123456]")).Error().To(HaveOccurred())
+	})
+
+	When("mocking socket syscalls", Serial, func() {
+
+		Context("correctly handles failing socket syscalls", Ordered, func() {
+
+			var fd int
+
+			BeforeAll(func() {
+				var err error
+				fd, err = unix.Socket(unix.AF_UNIX, unix.SOCK_STREAM, 0)
+				Expect(err).NotTo(HaveOccurred())
+				DeferCleanup(func() {
+					unix.Close(fd)
+				})
+			})
+
+			DescribeTable("failing to get socket option", Ordered,
+				func(blockopt int) {
+					oldgetsockoptInt := getsockoptInt
+					defer func() { getsockoptInt = oldgetsockoptInt }()
+
+					getsockoptInt = func(fd, level, opt int) (int, error) {
+						if level != unix.SOL_SOCKET || opt != blockopt {
+							return oldgetsockoptInt(fd, level, opt)
+						}
+						return 0, fmt.Errorf("failing option %d", opt)
+					}
+
+					Expect(NewSocketFd(fd, "socket:[123456]")).Error().To(
+						MatchError(fmt.Errorf("failing option %d", blockopt)))
+				},
+				Entry("failing SO_DOMAIN", unix.SO_DOMAIN),
+				Entry("failing SO_TYPE", unix.SO_TYPE),
+				Entry("failing SO_PROTOCOL", unix.SO_PROTOCOL),
+				Entry("failing SO_ACCEPTCONN", unix.SO_ACCEPTCONN),
+			)
+
+			It("correctly handles failing Getsockname", func() {
+				oldgetsockname := getsockname
+				defer func() { getsockname = oldgetsockname }()
+
+				getsockname = func(fd int) (unix.Sockaddr, error) {
+					return nil, errors.New("failing getsockname")
+				}
+
+				Expect(NewSocketFd(fd, "socket:[123456]")).Error().To(
+					MatchError("failing getsockname"))
+			})
+
+			It("correctly handles failing Getpeername", func() {
+				oldgetpeername := getpeername
+				defer func() { getpeername = oldgetpeername }()
+
+				getpeername = func(fd int) (unix.Sockaddr, error) {
+					return nil, errors.New("failing getpeername")
+				}
+
+				Expect(NewSocketFd(fd, "socket:[123456]")).Error().To(
+					MatchError("failing getpeername"))
+			})
+
+		})
+
 	})
 
 	It("returns correct socket inode number, domain, type, protocol", func() {
