@@ -59,6 +59,7 @@ func (matcher *haveLeakedFdsMatcher) Match(actual interface{}) (success bool, er
 	if err != nil {
 		return false, err
 	}
+	matcher.leaked = nil
 nextFd:
 	for _, actualFd := range actualFds {
 		for _, filter := range matcher.filters {
