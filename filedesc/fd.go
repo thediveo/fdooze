@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"math/bits"
 	"os"
 	"strconv"
@@ -144,11 +145,17 @@ scanning:
 			if err != nil {
 				return filedesc{}, err
 			}
+			if flags > math.MaxInt {
+				return filedesc{}, fmt.Errorf("fdFromReader: flags outside range: %d", flags)
+			}
 			f.flags = Flags(flags)
 		case strings.HasPrefix(line, "mnt_id:"):
 			mntId, err := strconv.ParseInt(strings.Trim(line[7:], "\t "), 10, bits.UintSize)
 			if err != nil {
 				return filedesc{}, err
+			}
+			if mntId <= 0 || mntId > math.MaxInt {
+				return filedesc{}, fmt.Errorf("fdFromReader: mnt_id outside range: %d", mntId)
 			}
 			f.mntId = int(mntId)
 			complete = true

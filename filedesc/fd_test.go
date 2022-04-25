@@ -3,6 +3,7 @@ package filedesc
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"testing/iotest"
@@ -16,14 +17,24 @@ var _ = Describe("file descriptors", func() {
 
 	When("dealing with a single file descriptor", func() {
 		It("returns error when reading errors", func() {
-			_, err := fdFromReader(42, iotest.ErrReader(errors.New("foobar")))
-			Expect(err).To(MatchError("foobar"))
+			Expect(fdFromReader(42, iotest.ErrReader(errors.New("foobar")))).Error().To(
+				MatchError("foobar"))
 		})
 
 		It("returns error when reading incomplete information", func() {
 			r := strings.NewReader("pos:\t0\nflags:\t042\n")
-			_, err := fdFromReader(42, r)
-			Expect(err).To(MatchError(ContainSubstring("incomplete fdinfo data")))
+			Expect(fdFromReader(42, r)).Error().To(
+				MatchError(ContainSubstring("incomplete fdinfo data")))
+		})
+
+		It("returns error when reading out-of-range information", func() {
+			r := strings.NewReader(fmt.Sprintf(
+				"pos:\t0\nflags:\t%o\nmnt_id:\t123\n", uint64(math.MaxInt)+1))
+			Expect(fdFromReader(42, r)).Error().To(
+				MatchError(ContainSubstring("flags outside range:")))
+			r = strings.NewReader("pos:\t0\nflags:\t042\nmnt_id:\t-1\n")
+			Expect(fdFromReader(42, r)).Error().To(
+				MatchError(ContainSubstring("mnt_id outside range:")))
 		})
 
 		It("reads and returns common fd information", func() {
