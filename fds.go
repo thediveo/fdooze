@@ -1,3 +1,5 @@
+//go:build linux
+
 package fdooze
 
 import "github.com/thediveo/fdooze/filedesc"

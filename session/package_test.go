@@ -1,6 +1,6 @@
 //go:build linux
 
-package fdooze
+package session
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestFdoozePackage(t *testing.T) {
+func TestSessionPackage(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "fdooze package")
+	RunSpecs(t, "session package")
 }

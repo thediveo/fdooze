@@ -3,8 +3,8 @@
 Package fdooze complements the Gingko/Gomega testing and matchers framework with
 matchers for file descriptor leakage detection.
 
-Please note that due to technical restrictions this package is available only
-for Linux.
+Please note that due to technical restrictions this (experimental) package is
+available only for Linux.
 
 Basic Usage
 
@@ -47,6 +47,15 @@ package, then please note that typical fdooze usage doesn't require Eventually,
 so Expect is fine most of the time. However, in situations where goroutines open
 file descriptors it might be a good idea to first wait for goroutines to
 terminate and not leak and only then test for any file descriptor leaks.
+
+When using Eventually() make sure to pass the Filedescriptors function itself to
+it, not the result of calling Filedescriptors.
+
+    // Correct
+    Eventually(Filedescriptors).ShouldNot(HaveLeakedFds(...))
+
+    // WRONG WRONG WRONG
+    Eventually(Filedescriptors()).ShouldNot(HaveLeakedFds(...))
 
 */
 package fdooze

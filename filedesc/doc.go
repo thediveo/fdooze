@@ -21,7 +21,8 @@ In order to better support use case-specific custom matchers, the different
 struct types implementing the FileDescriptor interface provide public accessors
 (value receivers) to their fd type-specific properties. These can be easily,
 erm, accessed using Gomega's HaveField matcher (after checking for the correct
-fd type to avoid HaveField errors for non-existing fields and receivers).
+fd type to avoid HaveField errors for non-existing fields and receivers using
+the new Gomega HaveExistingField matcher).
 
 */
 package filedesc

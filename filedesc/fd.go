@@ -31,16 +31,25 @@ type FileDescriptor interface {
 // there's always the potential for a race condition when the fd state hasn't
 // settled (yet).
 func Filedescriptors() []FileDescriptor {
-	return filedescriptors("/proc/self/fd")
+	fds, _ := filedescriptors("/proc/self/fd")
+	return fds
+}
+
+// Filedescriptors returns the list of currently open file descriptors in form
+// of FileDescriptor objects for the process identified by pid. If the calling
+// process does not possess the necessary access rights to the process
+// identified by pid an error is returned instead.
+func ProcessFiledescriptors(pid int) ([]FileDescriptor, error) {
+	return filedescriptors(fmt.Sprintf("/proc/%d/fd", pid))
 }
 
 // internal implementation to discovery file descriptors that can be tested
 // using fake proc file systems.
-func filedescriptors(fdDirPath string) []FileDescriptor {
-	// Don't use ioutil.ReadDir as it will sort the fd numbers incorrectly!
+func filedescriptors(fdDirPath string) ([]FileDescriptor, error) {
+	// Don't use ioutil.ReadDir as it will **incorrectly sort** the fd numbers!
 	fdfilesdir, err := os.Open(fdDirPath)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	defer fdfilesdir.Close()
 	// As we now read the open fds from our process's fd directory, we cannot
@@ -48,7 +57,7 @@ func filedescriptors(fdDirPath string) []FileDescriptor {
 	// drop it later when fetching fd details.
 	fdfiles, err := fdfilesdir.ReadDir(-1)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	fds := make([]FileDescriptor, 0, len(fdfiles)-1)
 	skipDirectoryFd := int(fdfilesdir.Fd())
@@ -57,20 +66,32 @@ func filedescriptors(fdDirPath string) []FileDescriptor {
 		if err != nil || fd == skipDirectoryFd {
 			continue
 		}
-		fdesc, err := New(fd)
+		fdesc, err := newWithBase(fd, fdDirPath)
 		if err != nil {
 			continue
 		}
 		fds = append(fds, fdesc)
 	}
-	return fds
+	return fds, nil
 }
 
 // New returns a FileDescriptor for the fd number specified. The information
 // about the specified fd is gathered from the procfs filesystem mounted on
 // /proc.
 func New(fd int) (FileDescriptor, error) {
-	link, err := os.Readlink(fmt.Sprintf("/proc/self/fd/%d", fd))
+	return NewForPID(fd, os.Getpid())
+}
+
+// NewForPID returns a FileDescriptor for the process identified by pid and the
+// particular fd number.
+func NewForPID(fd int, pid int) (FileDescriptor, error) {
+	return newWithBase(fd, fmt.Sprintf("/proc/%d/fd", pid))
+}
+
+// newWithBase returns a FileDescriptor for the fd of the process in the procfs
+// with the base path.
+func newWithBase(fd int, base string) (FileDescriptor, error) {
+	link, err := os.Readlink(fmt.Sprintf("%s/%d", base, fd))
 	if err != nil {
 		return nil, err
 	}

@@ -1,3 +1,5 @@
+//go:build linux
+
 package filedesc
 
 import (
@@ -77,9 +79,9 @@ var _ = Describe("file descriptors", func() {
 	})
 
 	When("discovering fds", func() {
-		It("returns nothing for missing or invalid procfs", func() {
-			Expect(filedescriptors("./test/missing-proc/fd")).To(BeEmpty())
-			Expect(filedescriptors("./test/not-an-fd-directory")).To(BeEmpty())
+		It("returns error or nothing for missing or invalid procfs", func() {
+			Expect(filedescriptors("./test/missing-proc/fd")).Error().To(HaveOccurred())
+			Expect(filedescriptors("./test/not-an-fd-directory")).Error().To(HaveOccurred())
 			Expect(filedescriptors("./test/fake-proc/fd")).To(BeEmpty())
 		})
 
