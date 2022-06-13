@@ -89,7 +89,7 @@ Expect(err).NotTo(HaveOccurred())
 client.DoWarmupAPIThing()
 
 // When using Eventually, make sure to pass the function, not its result!
-sessionFds := func ([]filedesc.FileDescriptor, error) {
+sessionFds := func ([]FileDescriptor, error) {
     return FiledescriptorsFor(session)
 }
 

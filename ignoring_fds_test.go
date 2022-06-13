@@ -5,7 +5,6 @@ package fdooze
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/thediveo/fdooze/filedesc"
 )
 
 var _ = Describe("IgnoringFds matcher", func() {
@@ -18,8 +17,8 @@ var _ = Describe("IgnoringFds matcher", func() {
 
 	It("returns correct failure messages", func() {
 		fds := Filedescriptors()
-		expected := []filedesc.FileDescriptor{fds[0], fds[2]}
-		actual := []filedesc.FileDescriptor{fds[1]}
+		expected := []FileDescriptor{fds[0], fds[2]}
+		actual := []FileDescriptor{fds[1]}
 		m := IgnoringFiledescriptors(expected)
 		Expect(m.FailureMessage(actual)).To(MatchRegexp(
 			`(?s)Expected

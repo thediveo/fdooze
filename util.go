@@ -9,16 +9,15 @@ import (
 	"strings"
 
 	"github.com/onsi/gomega/format"
-	"github.com/thediveo/fdooze/filedesc"
 )
 
-var fdsT = reflect.TypeOf([]filedesc.FileDescriptor{})
+var fdsT = reflect.TypeOf([]FileDescriptor{})
 
 // toFds returns actual as a slice of FileDescriptors, or an error if actual
 // isn't a slice of FileDescriptors. matchername specifies the name of the
 // matcher to be included in the error message in case of an invalid actual
 // type.
-func toFds(actual interface{}, matchername string) ([]filedesc.FileDescriptor, error) {
+func toFds(actual interface{}, matchername string) ([]FileDescriptor, error) {
 	val := reflect.ValueOf(actual)
 	switch val.Kind() {
 	case reflect.Array, reflect.Slice:
@@ -32,13 +31,13 @@ func toFds(actual interface{}, matchername string) ([]filedesc.FileDescriptor, e
 			"%s matcher expects an array or slice of file descriptors.  Got:\n%s",
 			matchername, format.Object(actual, 1))
 	}
-	return val.Convert(fdsT).Interface().([]filedesc.FileDescriptor), nil
+	return val.Convert(fdsT).Interface().([]FileDescriptor), nil
 }
 
 // dumpFds returns detailed textual information about the specified (leaked)
 // fds. The fds are numerically sorted in the dump by their file descriptor
 // numbers.
-func dumpFds(fds []filedesc.FileDescriptor, indentation uint) string {
+func dumpFds(fds []FileDescriptor, indentation uint) string {
 	sort.Slice(fds, func(a, b int) bool { return fds[a].Fd() < fds[b].Fd() })
 	var out strings.Builder
 	for idx, fd := range fds {

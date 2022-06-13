@@ -18,12 +18,12 @@ var _ = Describe("util", func() {
 	})
 
 	It("sorts oozing fds", func() {
-		n := func(fd int, link string) filedesc.FileDescriptor {
+		n := func(fd int, link string) FileDescriptor {
 			fdesc, err := filedesc.NewPathFd(fd, link)
 			Expect(err).WithOffset(1).NotTo(HaveOccurred())
 			return fdesc
 		}
-		fds := []filedesc.FileDescriptor{
+		fds := []FileDescriptor{
 			n(1, "/bar1/baz"),
 			n(0, "/foo0/bar"),
 		}

@@ -14,7 +14,7 @@ identifier free to be used by test writers as they see fit.
     client.DoWarmupAPIThing()
 
     // When using Eventually, make sure to pass the function, not its result!
-    sessionFds := func ([]filedesc.FileDescriptor, error) {
+    sessionFds := func ([]FileDescriptor, error) {
         return FiledescriptorsFor(session)
     }
 

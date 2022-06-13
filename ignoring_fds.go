@@ -7,7 +7,6 @@ import (
 
 	"github.com/onsi/gomega/format"
 	"github.com/onsi/gomega/types"
-	"github.com/thediveo/fdooze/filedesc"
 )
 
 // IgnoringFiledescriptors succeeds if an actual FileDescriptor in contained in
@@ -17,9 +16,9 @@ import (
 //
 // Please note that fd flags and file offsets are ignored when testing for
 // equality, in order to avoid spurious false positives.
-func IgnoringFiledescriptors(fds []filedesc.FileDescriptor) types.GomegaMatcher {
+func IgnoringFiledescriptors(fds []FileDescriptor) types.GomegaMatcher {
 	m := &ignoringFds{
-		ignoreFds: map[int]filedesc.FileDescriptor{},
+		ignoreFds: map[int]FileDescriptor{},
 	}
 	for _, fd := range fds {
 		m.ignoreFds[fd.Fd()] = fd
@@ -28,14 +27,14 @@ func IgnoringFiledescriptors(fds []filedesc.FileDescriptor) types.GomegaMatcher 
 }
 
 type ignoringFds struct {
-	ignoreFds map[int]filedesc.FileDescriptor
+	ignoreFds map[int]FileDescriptor
 }
 
 // Match succeeds if actual is a FileDescriptor contained in the set of expected
 // file descriptors. Containment uses FileDescriptor.Equal to test for file
 // descriptor equality.
 func (matcher *ignoringFds) Match(actual interface{}) (success bool, err error) {
-	actualFd, ok := actual.(filedesc.FileDescriptor)
+	actualFd, ok := actual.(FileDescriptor)
 	if !ok {
 		return false, fmt.Errorf(
 			"IgnoringFiledescriptor matcher expects a filedesc.FileDescriptor.  Got:\n%s",
@@ -51,7 +50,7 @@ func (matcher *ignoringFds) Match(actual interface{}) (success bool, err error) 
 // FailureMessage returns a failure message if the actual file descriptor isn't
 // in the set of file descriptors to be ignored.
 func (matcher *ignoringFds) FailureMessage(actual interface{}) (message string) {
-	expected := make([]filedesc.FileDescriptor, 0, len(matcher.ignoreFds))
+	expected := make([]FileDescriptor, 0, len(matcher.ignoreFds))
 	for _, fd := range matcher.ignoreFds {
 		expected = append(expected, fd)
 	}
@@ -63,7 +62,7 @@ func (matcher *ignoringFds) FailureMessage(actual interface{}) (message string) 
 // NegatedFailureMessage returns a failure message if the actual file descriptor
 // actually is in the set of file descriptors to be ignored.
 func (matcher *ignoringFds) NegatedFailureMessage(actual interface{}) (message string) {
-	expected := make([]filedesc.FileDescriptor, 0, len(matcher.ignoreFds))
+	expected := make([]FileDescriptor, 0, len(matcher.ignoreFds))
 	for _, fd := range matcher.ignoreFds {
 		expected = append(expected, fd)
 	}

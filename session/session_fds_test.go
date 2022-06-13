@@ -5,13 +5,14 @@ package session
 import (
 	"os/exec"
 
-	. "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/thediveo/fdooze"
 	"github.com/thediveo/fdooze/filedesc"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 func HaveFdWithPath(matcher gomega.OmegaMatcher) gomega.OmegaMatcher {
@@ -52,18 +53,18 @@ var _ = Describe("session fd leak detection", func() {
 		Expect(goodfds[0]).NotTo(Equal(fdooze.Filedescriptors()[0]), "malfunction: got fds of myself")
 
 		By("triggering a leak")
-		in.Write([]byte("\n"))
+		_, _ = in.Write([]byte("\n"))
 		Eventually(session.Out).Should(gbytes.Say("LEAK"))
 		Eventually(sessionFds).Should(ContainElement(HaveFdWithPath(HaveSuffix("test/leaky/main.go"))))
 		Eventually(sessionFds).Should(fdooze.HaveLeakedFds(goodfds), "should have leaked")
 
 		By("plumbing the leak")
-		in.Write([]byte("\n"))
+		_, _ = in.Write([]byte("\n"))
 		Eventually(session.Out).Should(gbytes.Say("PLUMBED"))
 		Eventually(sessionFds).ShouldNot(ContainElement(HaveFdWithPath(HaveSuffix("test/leaky/main.go"))))
 		Eventually(sessionFds).ShouldNot(fdooze.HaveLeakedFds(goodfds), "leak should be gone")
 
-		in.Write([]byte("\n"))
+		_, _ = in.Write([]byte("\n"))
 		Eventually(session).Should(gexec.Exit())
 	})
 

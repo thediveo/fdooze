@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/onsi/gomega/types"
-	"github.com/thediveo/fdooze/filedesc"
 )
 
 // HaveLeakedFds succeeds if after filtering out expected file descriptors from
@@ -42,7 +41,7 @@ import (
 // Goemega's HaveField matcher can be quite useful in covering specific use
 // cases where the otherwise straightforward before-after fd comparism isn't
 // enough.
-func HaveLeakedFds(fds []filedesc.FileDescriptor, ignoring ...types.GomegaMatcher) types.GomegaMatcher {
+func HaveLeakedFds(fds []FileDescriptor, ignoring ...types.GomegaMatcher) types.GomegaMatcher {
 	m := &haveLeakedFdsMatcher{
 		filters: append([]types.GomegaMatcher{
 			IgnoringFiledescriptors(fds),
@@ -53,7 +52,7 @@ func HaveLeakedFds(fds []filedesc.FileDescriptor, ignoring ...types.GomegaMatche
 
 type haveLeakedFdsMatcher struct {
 	filters []types.GomegaMatcher
-	leaked  []filedesc.FileDescriptor
+	leaked  []FileDescriptor
 }
 
 func (matcher *haveLeakedFdsMatcher) Match(actual interface{}) (success bool, err error) {
