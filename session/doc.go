@@ -1,5 +1,4 @@
 /*
-
 Package session implements retrieving the open file descriptors from a Gomega
 gexec.Session (Linux only). This allows checking processes launched by a test
 suite for file descriptor leaks, subject to normal process access control.
@@ -7,31 +6,30 @@ suite for file descriptor leaks, subject to normal process access control.
 It is recommended to dot-import the session package, as this keeps the "session"
 identifier free to be used by test writers as they see fit.
 
-    session, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
-    Expect(err).NotTo(HaveOccurred())
+	session, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
+	Expect(err).NotTo(HaveOccurred())
 
-    // Optional, please see note below.
-    client.DoWarmupAPIThing()
+	// Optional, please see note below.
+	client.DoWarmupAPIThing()
 
-    // When using Eventually, make sure to pass the function, not its result!
-    sessionFds := func ([]FileDescriptor, error) {
-        return FiledescriptorsFor(session)
-    }
+	// When using Eventually, make sure to pass the function, not its result!
+	sessionFds := func ([]FileDescriptor, error) {
+	    return FiledescriptorsFor(session)
+	}
 
-    goodfds := sessionFds()
+	goodfds := sessionFds()
 
-    client.DoSomeAPIThing()
-    Expect(session).Should(gbytes.Say("I did the thing"))
+	client.DoSomeAPIThing()
+	Expect(session).Should(gbytes.Say("I did the thing"))
 
-    Eventually(sessionFds).ShouldNot(HaveLeakedFds(goodfds))
-    Eventually(session.Interrupt()).Should(gexec.Exit(0))
+	Eventually(sessionFds).ShouldNot(HaveLeakedFds(goodfds))
+	Eventually(session.Interrupt()).Should(gexec.Exit(0))
 
-Launched Go Processes False Positives
+# Launched Go Processes False Positives
 
 In case the launched process is implemented in Go, fd leak tests need to be
 carefully designed as to not fail with false positive fd leaks caused by Go's
-netpoll runtime (for instance, see https://morsmachine.dk/netpoller for more
-background information).
+netpoll runtime (for instance, see [netpoller] for more background information).
 
 For instance, when opening a file or network socket for the first time, Go's
 runtime creates an internal epoll fd as well as a non-blocking pipe fd for use
@@ -48,5 +46,6 @@ the launched process has opened its first file or network socket. In case of
 network-facing services this will be when the listening transport port has
 become available.
 
+[netpoller]: https://morsmachine.dk/netpoller
 */
 package session

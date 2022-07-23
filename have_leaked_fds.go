@@ -28,19 +28,21 @@ import (
 //
 // A typical way to check for leaked ("oozed") file descriptors is as follows:
 //
-//     BeforeEach(func() {
-//         goodfds := Filedescriptors()
-//         DeferCleanup(func() {
-//             Expect(Filedescriptors()).NotTo(HaveLeakedFds(goodfds))
-//         })
-//     })
+//	BeforeEach(func() {
+//	    goodfds := Filedescriptors()
+//	    DeferCleanup(func() {
+//	        Expect(Filedescriptors()).NotTo(HaveLeakedFds(goodfds))
+//	    })
+//	})
 //
-// HaveLeakedFds accepts optional Gomega matchers that it will repeatedly pass
-// FileDescriptor values to: if a matcher succeeds, the particular file
-// descriptor is considered not to be leaked and thus filtered out. Especially
-// Goemega's HaveField matcher can be quite useful in covering specific use
-// cases where the otherwise straightforward before-after fd comparism isn't
-// enough.
+// HaveLeakedFds accepts optional Gomega matchers (of type
+// [types.GomegaMatcher]) that it will repeatedly pass FileDescriptor values to:
+// if a matcher succeeds, the particular file descriptor is considered not to be
+// leaked and thus filtered out. Especially Gomega's [HaveField] matcher can be
+// quite useful in covering specific use cases where the otherwise
+// straightforward before-after fd comparism isn't enough.
+//
+// [HaveField]: https://onsi.github.io/gomega/#havefieldfield-interface-value-interface
 func HaveLeakedFds(fds []FileDescriptor, ignoring ...types.GomegaMatcher) types.GomegaMatcher {
 	m := &haveLeakedFdsMatcher{
 		filters: append([]types.GomegaMatcher{

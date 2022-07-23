@@ -12,7 +12,8 @@ import (
 // IgnoringFiledescriptors succeeds if an actual FileDescriptor in contained in
 // a slice of expected file descriptors. An actual FileDescriptor is considered
 // to be contained, if the slice must contains a FileDescriptor with the same fd
-// number and FileDescriptor.Equal considers both file descriptors to be equal.
+// number and [filedesc.FileDescriptor.Equal] considers both file descriptors to
+// be equal.
 //
 // Please note that fd flags and file offsets are ignored when testing for
 // equality, in order to avoid spurious false positives.
@@ -30,9 +31,9 @@ type ignoringFds struct {
 	ignoreFds map[int]FileDescriptor
 }
 
-// Match succeeds if actual is a FileDescriptor contained in the set of expected
-// file descriptors. Containment uses FileDescriptor.Equal to test for file
-// descriptor equality.
+// Match succeeds if actual is a [filedesc.FileDescriptor] that is contained in
+// the set of expected file descriptors. Containment uses
+// [filedesc.FileDescriptor.Equal] to test for file descriptor equality.
 func (matcher *ignoringFds) Match(actual interface{}) (success bool, err error) {
 	actualFd, ok := actual.(FileDescriptor)
 	if !ok {

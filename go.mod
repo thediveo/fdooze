@@ -14,6 +14,6 @@ require (
 )
 
 require (
-	github.com/onsi/gomega v1.19.1-0.20220613004312-293dd88bf6f8
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+	github.com/onsi/gomega v1.20.0
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
 )
