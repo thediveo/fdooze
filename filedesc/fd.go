@@ -47,6 +47,7 @@ func ProcessFiledescriptors(pid int) ([]FileDescriptor, error) {
 // using fake proc file systems.
 func filedescriptors(fdDirPath string) ([]FileDescriptor, error) {
 	// Don't use ioutil.ReadDir as it will **incorrectly sort** the fd numbers!
+	// Well, don't use ioutil anymore anyway ;)
 	fdfilesdir, err := os.Open(fdDirPath)
 	if err != nil {
 		return nil, err

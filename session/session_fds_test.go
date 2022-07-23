@@ -30,6 +30,18 @@ func HaveFdWithPath(matcher gomega.OmegaMatcher) gomega.OmegaMatcher {
 
 var _ = Describe("session fd leak detection", func() {
 
+	Context("invalid sessions", func() {
+
+		It("returns an error when the session already has terminated", func() {
+			cmd := exec.Command("go", "version")
+			session, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
+			Expect(err).NotTo(HaveOccurred())
+			Eventually(session).Should(gexec.Exit())
+			Expect(FiledescriptorsFor(session)).Error().To(MatchError("session has already ended"))
+		})
+
+	})
+
 	It("finds leaks without false positives", func() {
 		leakyPath, err := gexec.Build("./test/leaky")
 		Expect(err).NotTo(HaveOccurred())
