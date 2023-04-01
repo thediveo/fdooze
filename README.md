@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-next-line MD022 -->
+![Coverage](https://img.shields.io/badge/Coverage-99.1%25-brightgreen)
 # `fdooze`
 <img title="Goigi the gopher" align="right" width="150" src="images/goigi-small.png">
 
