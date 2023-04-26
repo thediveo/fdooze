@@ -4,7 +4,7 @@ package fdooze
 
 import "github.com/thediveo/fdooze/filedesc"
 
-// FileDescriptor describes a Linux "fd" file descriptor in more detail than
+// FileDescriptor describes a Linux “fd” file descriptor in more detail than
 // just its fd int number; it is a type alias of [filedesc.FileDescriptor].
 type FileDescriptor = filedesc.FileDescriptor
 

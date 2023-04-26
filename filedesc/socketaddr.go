@@ -51,7 +51,7 @@ func (a Sockaddr) String() string {
 // socket address (which includes the port number, as well as optionally the
 // zone ID if not zero).
 //
-// https://man7.org/linux/man-pages/man7/ipv6.7.html#DESCRIPTION
+// See also: https://man7.org/linux/man-pages/man7/ipv6.7.html#DESCRIPTION
 func ipv6AddrFormat(sockaddr *unix.SockaddrInet6) string {
 	ip := net.IP(sockaddr.Addr[:])
 	// \o/ Google knows its way around IPv6! They actually understand what a

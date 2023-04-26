@@ -11,9 +11,9 @@ import (
 // PipeFd implements the FileDescriptor interface for an fd representing a pipe,
 // as created by the pipe and pipe2 syscalls. See also pipe(2).
 //
-// Pipes are "unnamed" or "annonymous" and should not be confused with fifos,
+// Pipes are “unnamed” or “anonymous” and should not be confused with fifos,
 // the latter being accessed as part of the file system. While pipes are
-// identified by inodes, these inodes come from a special "pipefs" virtual file
+// identified by inodes, these inodes come from a special “pipefs” virtual file
 // system. The mounted pipefs isn't visible in the VFS and thus cannot be
 // viewed. It only serves for managing pipe inodes.
 //

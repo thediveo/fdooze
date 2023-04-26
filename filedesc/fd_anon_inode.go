@@ -10,7 +10,7 @@ import (
 const anonInodePrefix = "anon_inode:"
 
 // AnonInodeFd implements FileDescriptor for an fd for an anonymous inode of
-// some "file" type, such as event fds, timer fds, et cetera. This is a generic,
+// some “file” type, such as event fds, timer fds, et cetera. This is a generic,
 // catch-all implementation to be used for any file type of anonymous inode
 // where we don't define a dedicated type.
 type AnonInodeFd struct {
@@ -18,8 +18,8 @@ type AnonInodeFd struct {
 	ftype string // "file" type of anonymous inode, without any enclosing square brackets.
 }
 
-// NewAnonInodeFd returns a new FileDescriptor for an fd for an "anonymous
-// inode".
+// NewAnonInodeFd returns a new FileDescriptor for an fd for an “anonymous
+// inode”.
 func NewAnonInodeFd(fd int, link string) (FileDescriptor, error) {
 	filedesc, err := newFiledesc(fd)
 	if err != nil {
@@ -31,11 +31,11 @@ func NewAnonInodeFd(fd int, link string) (FileDescriptor, error) {
 	}, nil
 }
 
-// FileType returns the "file type" of this anonymous inode.
+// FileType returns the “file type” of this anonymous inode.
 func (a AnonInodeFd) FileType() string { return a.ftype }
 
 // Description returns a pretty formatted multi-line textual description
-// detailing the fd number, flags, and "file type" of anonymous node.
+// detailing the fd number, flags, and “file type” of anonymous node.
 func (a AnonInodeFd) Description(indentation uint) string {
 	indent := Indentation(indentation + 1) // further details are always indented further
 	return a.filedesc.Description(indentation) +

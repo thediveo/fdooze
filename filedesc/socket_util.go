@@ -75,9 +75,10 @@ func (d SocketDomain) String() string {
 }
 
 // SocketType indicates the communication semantics of socket and additionally
-// returns a textual representation. The term "type" is historically founded in
-// the socket() call parameter names. See also:
-// https://man7.org/linux/man-pages/man2/socket.2.html
+// returns a textual representation. The term “type” is historically founded in
+// the [socket(2)] call parameter names.
+//
+// [socket(2)]: https://man7.org/linux/man-pages/man2/socket.2.html
 type SocketType int
 
 // socketTypeNames maps the socket type constants to their corresponding textual
@@ -100,10 +101,11 @@ func (t SocketType) String() string {
 	return n
 }
 
-// SocketProtocol specifies a particular communication protocol. A
-// SocketProtocol always must be interpreted in a particular SocketDomain.
+// SocketProtocol specifies a particular communication [protocol(5)]. A
+// SocketProtocol always must be interpreted in the context of a specific
+// [SocketDomain].
 //
-// See also: https://man7.org/linux/man-pages/man5/protocols.5.html
+// [protocol(5)]: https://man7.org/linux/man-pages/man5/protocols.5.html
 type SocketProtocol int
 
 var socketIPNames = map[int]string{

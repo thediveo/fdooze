@@ -14,8 +14,9 @@ import (
 //
 // Optional additional filter matchers can be specified that can filter out use
 // case-specific file descriptors based on various fd properties. Please refer
-// to the filedesc package for details about the defined FileDescriptor
-// implementations for various types of file descriptors.
+// to the [github.com/thediveo/fdooze/filedesc] package for details about the
+// defined [github.com/thediveo/fdooze/filedesc.FileDescriptor] implementations
+// for various types of file descriptors.
 //
 // File descriptors are identified not only based on the fd number, but also
 // additional associated information, such as a file path they link to, type,
@@ -26,14 +27,19 @@ import (
 // HaveLeakedFds does not assume any well-known fds, and in particular, it does
 // not make any assumptions about fds with numbers 0, 1, 2.
 //
-// A typical way to check for leaked ("oozed") file descriptors is as follows:
+// A typical way to check for leaked (“oozed”) file descriptors is as follows,
+// after dot-importing the fdooze package:
 //
-//	BeforeEach(func() {
-//	    goodfds := Filedescriptors()
-//	    DeferCleanup(func() {
-//	        Expect(Filedescriptors()).NotTo(HaveLeakedFds(goodfds))
-//	    })
-//	})
+//	 import . "github.com/thediveo/fdooze"
+//
+//	 var _ = Describe("...", {
+//		  BeforeEach(func() {
+//		      goodfds := Filedescriptors()
+//		      DeferCleanup(func() {
+//		          Expect(Filedescriptors()).NotTo(HaveLeakedFds(goodfds))
+//		      })
+//		  })
+//	 })
 //
 // HaveLeakedFds accepts optional Gomega matchers (of type
 // [types.GomegaMatcher]) that it will repeatedly pass FileDescriptor values to:

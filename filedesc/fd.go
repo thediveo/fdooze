@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-// FileDescriptor describes a Linux "fd" file descriptor in more detail than
+// FileDescriptor describes a Linux “fd” file descriptor in more detail than
 // just its fd int number. It describes the type of file descriptor and then
 // type-specific properties.
 type FileDescriptor interface {
@@ -27,11 +27,13 @@ type FileDescriptor interface {
 // process in form of FileDescriptor objects.
 //
 // Note: it is not possible to atomically read both the fd link itself as well
-// as the associated fd information, as these are two separate procfs nodes,
+// as the associated fd information, as these are two separate [procfs] nodes,
 // there's always the potential for a race condition when the fd state hasn't
 // settled (yet).
+//
+// [procfs]: https://man7.org/linux/man-pages/man5/proc.5.html
 func Filedescriptors() []FileDescriptor {
-	fds, _ := filedescriptors("/proc/self/fd")
+	fds, _ := filedescriptors("/proc/self/fd") // keep silent in case of errors
 	return fds
 }
 
@@ -118,17 +120,17 @@ func new(fd int, link string) (FileDescriptor, error) {
 }
 
 // fdConstructor returns a new FileDescriptor for the specified fd number and
-// link "destination". These destinations can be "ordinary" file paths, or in
-// the formats "type:[inode]" and "anon_inode:<type>".
+// link “destination”. These destinations can be “ordinary” file paths, or in
+// the formats “type:[inode]” and “anon_inode:<type>”.
 type fdConstructor func(fd int, link string) (FileDescriptor, error)
 
-// fdTypeFactories maps "type:[inode]" fds to their corresponding type factory.
+// fdTypeFactories maps “type:[inode]” fds to their corresponding type factory.
 var fdTypeFactories = map[string]fdConstructor{
 	"pipe":   NewPipeFd,
 	"socket": NewSocketFd,
 }
 
-// filedesc describes the information common to all "types" of file descriptor.
+// filedesc describes the information common to all “types” of file descriptor.
 type filedesc struct {
 	fd    int   // file descriptor number
 	flags Flags // access mode and status flags as used by open(2)

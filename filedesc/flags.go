@@ -15,7 +15,7 @@ type Flags int
 
 // Names returns the known symbolic constant names for the set bit(s).
 //
-// Please note that the "oddball" multi-bit fields and combinations are handled
+// Please note that the “oddball” multi-bit fields and combinations are handled
 // especially and correctly, such as the access mode bits,
 // O_TMPFILE/O_DIRECTORY, and O_DSYNC/O_SYNC.
 func (f Flags) Names() []string {

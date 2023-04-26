@@ -1,5 +1,5 @@
 /*
-Package filedesc implements file descriptor ("fd") discovery beyond plain fd
+Package filedesc implements file descriptor (“fd”) discovery beyond plain fd
 numbers. The discovery includes further details, such as the fd flags, socket
 local and peer addresses, et cetera.
 
@@ -7,7 +7,7 @@ The filedesc package is not designed as a (generalized) communication diagnosis
 package. Instead, it is especially designed to give useful fd details in order
 to help identify the origins of leaked file descriptors.
 
-Thus, emphasis is put on providing clear and helpful "dumps" of fd properties;
+Thus, emphasis is put on providing clear and helpful “dumps” of fd properties;
 for instance, by outputting symbolic constant names where known for address
 families, socket types, domain-specific protocols and not just obscure octal or
 hex numbers (sorry, PDP-11 & co).
