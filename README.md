@@ -1,33 +1,45 @@
-<!-- markdownlint-disable-next-line MD022 -->
-![Coverage](https://img.shields.io/badge/Coverage-99.1%25-brightgreen)
 # `fdooze`
 <img title="Goigi the gopher" align="right" width="150" src="images/goigi-small.png">
 
 [![PkgGoDev](https://img.shields.io/badge/-reference-blue?logo=go&logoColor=white&labelColor=505050)](https://pkg.go.dev/github.com/thediveo/fdooze)
 [![GitHub](https://img.shields.io/github/license/thediveo/fdooze)](https://img.shields.io/github/license/thediveo/fdooze)
 [![Go Report Card](https://goreportcard.com/badge/github.com/thediveo/fdooze)](https://goreportcard.com/report/github.com/thediveo/fdooze)
+![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
 
 `fdooze` complements [Gomega](https://github.com/onsi/gomega) with tests to
-detect leaked ("oozed") file descriptors.
+detect leaked ("oozed") [file
+descriptors](https://man7.org/linux/man-pages/man2/open.2.html#DESCRIPTION).
 
 > **Note:** `fdooze` is available on **Linux only**, as discovering file
 > descriptor information requires using highly system-specific APIs and the
 > descriptor information varies across different systems (if available at all).
 
-## Basic Usage
+## Installation
 
-In your project (with a `go.mod`) run `go get github.com/thediveo/fdooze` to get
-and install the latest stable release.
-
-A typical usage in your tests then is (using
-[Ginkgo](https://github.com/onsi/ginkgo)):
+In your project (with a `go.mod`) run
 
 ```go
-BeforeEach(func() {
-    goodfds := Filedescriptors()
-    DeferCleanup(func() {
-        Expect(Filedescriptors()).NotTo(HaveLeakedFds(goodfds))
+go get github.com/thediveo/fdooze@latest
+```
+
+to get and install the latest stable release.
+
+## Usage
+
+In your tests, using [Ginkgo](https://github.com/onsi/ginkgo):
+
+```go
+import . "github.com/thediveo/fdooze"
+
+var _ = Describe("...", func() {
+
+    BeforeEach(func() {
+        goodfds := Filedescriptors()
+        DeferCleanup(func() {
+            Expect(Filedescriptors()).NotTo(HaveLeakedFds(goodfds))
+        })
     })
+
 })
 ```
 
@@ -69,7 +81,7 @@ it, not the result of calling Filedescriptors.
     // Correct
     Eventually(Filedescriptors).ShouldNot(HaveLeakedFds(...))
 
-> **WRONG**
+> **WRONG:**
 > `Eventually(Filedescriptors()).ShouldNot(HaveLeakedFds(...))`
 
 ## Leak Tests on Launched Processes
@@ -134,7 +146,7 @@ Goigi the gopher mascot clearly has been inspired by the Go gopher art work of
 [Renee French](http://reneefrench.blogspot.com/). It seems as if Goigi has some
 issues with plumbing file descriptors properly.
 
-## ⚖️ Copyright and License
+## Copyright and License
 
-`fdooze` is Copyright 2022 Harald Albrecht, and licensed under the Apache
+`fdooze` is Copyright 2022-23 Harald Albrecht, and licensed under the Apache
 License, Version 2.0.

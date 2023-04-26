@@ -1,4 +1,4 @@
-// Copyright 2022 Harald Albrecht.
+// Copyright 2023 Harald Albrecht.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
 // use this file except in compliance with the License. You may obtain a copy
@@ -12,18 +12,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
-//go:build linux
+package cage
 
-package fdooze
-
-import "github.com/thediveo/fdooze/filedesc"
-
-// FileDescriptor describes a Linux “fd” file descriptor in more detail than
-// just its fd int number; it is a type alias of [filedesc.FileDescriptor].
-type FileDescriptor = filedesc.FileDescriptor
-
-// Filedescriptors returns the list of currently open file descriptors for this
-// process.
-func Filedescriptors() []FileDescriptor {
-	return filedesc.Filedescriptors()
-}
+const (
+	IP   = "1.2.34.56"
+	Port = 12345
+)

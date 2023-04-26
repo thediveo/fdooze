@@ -1,8 +1,23 @@
+// Copyright 2022 Harald Albrecht.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+
 //go:build linux
 
 package filedesc
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -18,7 +33,7 @@ type SocketFd struct {
 	filedesc
 	ino       uint64       // socket's inode number.
 	domain    SocketDomain // the socket's address/protocol family ("domain")
-	stype     SocketType   // type of socket, that is, type parameter to socket()
+	typ       SocketType   // type of socket, that is, type parameter to socket()
 	protocol  SocketProtocol
 	local     Sockaddr
 	peer      Sockaddr
@@ -28,55 +43,73 @@ type SocketFd struct {
 // NewSocketFd returns a new FileDescriptor for a pipe fd. If there is any
 // problem with determining the plethora of socket parameters and binding, then
 // a nil FileDescriptor is returned instead with the error indication.
-func NewSocketFd(fd int, link string) (FileDescriptor, error) {
-	inoArg := strings.TrimSuffix(strings.TrimPrefix(link, "socket:["), "]")
+func NewSocketFd(fdNo int, base string, linkDest string) (FileDescriptor, error) {
+	inoArg := strings.TrimSuffix(strings.TrimPrefix(linkDest, "socket:["), "]")
 	ino, err := strconv.ParseUint(inoArg, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	filedesc, err := newFiledesc(fd)
+	filedesc, err := newFiledesc(fdNo, base)
 	if err != nil {
 		return nil, err
+	}
+
+	// turn the fdNo into a useable fd (number): for one of our own fd numbers
+	// we simply can use it as-is, as we're the same process; but if it is from
+	// a different process, we first need to clone the other process's fd into
+	// our own fd.
+	useableFd := fdNo
+	if !strings.HasPrefix(base, "/proc/self/") {
+		fields := strings.SplitN(base, "/", 4)
+		if len(fields) < 4 {
+			return nil, errors.New("invalid fd base \"" + base + "\"")
+		}
+		pid, err := strconv.Atoi(fields[2])
+		if err != nil {
+			return nil, err
+		}
+		pidFd, err := unix.PidfdOpen(pid, 0)
+		if err != nil {
+			return nil, err
+		}
+		defer unix.Close(pidFd)
+		useableFd, err /* no ":=" */ = unix.PidfdGetfd(pidFd, fdNo, 0)
+		if err != nil {
+			return nil, err
+		}
+		defer unix.Close(useableFd)
 	}
 
 	// Get the parameters from the call to socket(domain, type, protocol); we
 	// need to successfully retrieve these.
-	domain, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_DOMAIN)
+	domain, err := getsockoptInt(useableFd, unix.SOL_SOCKET, unix.SO_DOMAIN)
 	if err != nil {
 		return nil, err
 	}
-	stype, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_TYPE)
+	typ, err := getsockoptInt(useableFd, unix.SOL_SOCKET, unix.SO_TYPE)
 	if err != nil {
 		return nil, err
 	}
-	protocol, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_PROTOCOL)
-	if err != nil {
-		return nil, err
-	}
-	// Oh, and check if it is a listening socket...
-	listening, err := getsockoptInt(fd, unix.SOL_SOCKET, unix.SO_ACCEPTCONN)
+	protocol, err := getsockoptInt(useableFd, unix.SOL_SOCKET, unix.SO_PROTOCOL)
 	if err != nil {
 		return nil, err
 	}
 
-	// Now get the local and remote addresses, erm, "names"...
-	local, err := getsockname(fd)
-	if err != nil {
-		return nil, err
-	}
-	// ...please note that getpeername(2) will fail if the socket isn't
-	// connected and then return ENOTCONN. This is expected, but all other error
-	// results are considered to be, well, errors.
-	peer, err := getpeername(fd)
-	if err != nil && err != unix.ENOTCONN {
-		return nil, err
-	}
+	// ...oh, and check if it is a listening socket. But this time we accept
+	// failure as only few socket types might champion the concept of
+	// "listening".
+	listening, _ := getsockoptInt(useableFd, unix.SOL_SOCKET, unix.SO_ACCEPTCONN)
+
+	// Now get the local and remote addresses, erm, "names"; again, these might
+	// not be available for some socket families, sadly.
+	local, _ := getsockname(useableFd)
+	peer, _ := getpeername(useableFd)
 
 	return &SocketFd{
 		filedesc:  filedesc,
 		ino:       ino,
 		domain:    SocketDomain(domain),
-		stype:     SocketType(stype),
+		typ:       SocketType(typ),
 		protocol:  SocketProtocol(protocol),
 		local:     Sockaddr{local},
 		peer:      Sockaddr{peer},
@@ -93,7 +126,7 @@ func (s SocketFd) Domain() int { return int(s.domain) }
 
 // Type returns the socket's type, which specifies the communication semantics
 // (such as byte stream, datagrams, et cetera).
-func (s SocketFd) Type() int { return int(s.stype) }
+func (s SocketFd) Type() int { return int(s.typ) }
 
 // Protocol returns the socket's protocol, specific within the socket's domain.
 func (s SocketFd) Protocol() int { return int(s.protocol) }
@@ -114,7 +147,7 @@ func (s SocketFd) Description(indentation uint) string {
 		buff.WriteString("listening ")
 	}
 	buff.WriteString(fmt.Sprintf("socket(%s, %s, %s), ino %d",
-		s.domain.String(), s.stype.String(), s.protocol.String(s.domain), s.ino))
+		s.domain.String(), s.typ.String(), s.protocol.String(s.domain), s.ino))
 
 	buff.WriteString(newindent)
 	buff.WriteString(fmt.Sprintf("local %q", s.local.String()))
@@ -157,7 +190,7 @@ func (s SocketFd) Equal(other FileDescriptor) bool {
 	}
 	return s.filedesc.Equal(&o.filedesc) &&
 		s.ino == o.ino &&
-		s.domain == o.domain && s.stype == o.stype && s.protocol == o.protocol &&
+		s.domain == o.domain && s.typ == o.typ && s.protocol == o.protocol &&
 		s.listening == o.listening &&
 		reflect.DeepEqual(s.local, o.local) && reflect.DeepEqual(s.peer, o.peer)
 }

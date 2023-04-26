@@ -1,3 +1,17 @@
+// Copyright 2022 Harald Albrecht.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+
 //go:build linux
 
 package session
@@ -31,6 +45,16 @@ func HaveFdWithPath(matcher gomega.OmegaMatcher) gomega.OmegaMatcher {
 var _ = Describe("session fd leak detection", func() {
 
 	Context("invalid sessions", func() {
+
+		It("rejects nil sessions and commands", func() {
+			Expect(FiledescriptorsFor(nil)).Error().To(HaveOccurred())
+			Expect(FiledescriptorsFor(&gexec.Session{})).Error().To(HaveOccurred())
+		})
+
+		It("rejects session without a process", func() {
+			session := &gexec.Session{Command: exec.Command("foobar")}
+			Expect(FiledescriptorsFor(session)).Error().To(HaveOccurred())
+		})
 
 		It("returns an error when the session already has terminated", func() {
 			cmd := exec.Command("go", "version")

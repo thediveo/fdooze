@@ -1,3 +1,17 @@
+// Copyright 2022 Harald Albrecht.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+
 //go:build linux
 
 package fdooze
@@ -5,10 +19,11 @@ package fdooze
 import (
 	"fmt"
 	"reflect"
-	"sort"
 	"strings"
 
-	"github.com/onsi/gomega/format"
+	"golang.org/x/exp/slices"
+
+	"github.com/onsi/gomega/format" // That's fine ... because this is a package used only in tests anyway
 )
 
 var fdsT = reflect.TypeOf([]FileDescriptor{})
@@ -38,7 +53,7 @@ func toFds(actual interface{}, matchername string) ([]FileDescriptor, error) {
 // fds. The fds are numerically sorted in the dump by their file descriptor
 // numbers.
 func dumpFds(fds []FileDescriptor, indentation uint) string {
-	sort.Slice(fds, func(a, b int) bool { return fds[a].Fd() < fds[b].Fd() })
+	slices.SortFunc(fds, func(a, b FileDescriptor) bool { return a.FdNo() < b.FdNo() })
 	var out strings.Builder
 	for idx, fd := range fds {
 		if idx > 0 {

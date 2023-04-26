@@ -19,5 +19,7 @@ require (
 
 require (
 	github.com/onsi/gomega v1.27.6
-	golang.org/x/sys v0.6.0
+	github.com/thediveo/success v1.0.1
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
+	golang.org/x/sys v0.7.0
 )

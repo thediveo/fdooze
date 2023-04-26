@@ -1,4 +1,4 @@
-// Copyright 2022 Harald Albrecht.
+// Copyright 2023 Harald Albrecht.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
 // use this file except in compliance with the License. You may obtain a copy
@@ -12,18 +12,28 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
-//go:build linux
+package main
 
-package fdooze
+import (
+	"net"
 
-import "github.com/thediveo/fdooze/filedesc"
+	"github.com/thediveo/fdooze/filedesc/test/canary/cage"
+	"golang.org/x/sys/unix"
+)
 
-// FileDescriptor describes a Linux “fd” file descriptor in more detail than
-// just its fd int number; it is a type alias of [filedesc.FileDescriptor].
-type FileDescriptor = filedesc.FileDescriptor
+func main() {
+	canaryfd, err := unix.Socket(unix.AF_INET, unix.SOCK_DGRAM, 0)
+	if err != nil {
+		panic(err)
+	}
+	defer unix.Close(canaryfd)
 
-// Filedescriptors returns the list of currently open file descriptors for this
-// process.
-func Filedescriptors() []FileDescriptor {
-	return filedesc.Filedescriptors()
+	unix.Connect(canaryfd, &unix.SockaddrInet4{
+		// https://tip.golang.org/ref/spec#Conversions, sub heading "Conversions
+		// from slice to array or array pointer"
+		Addr: *(*[4]byte)(net.ParseIP(cage.IP).To4()),
+		Port: cage.Port,
+	})
+
+	select {}
 }
