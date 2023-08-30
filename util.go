@@ -53,7 +53,7 @@ func toFds(actual interface{}, matchername string) ([]FileDescriptor, error) {
 // fds. The fds are numerically sorted in the dump by their file descriptor
 // numbers.
 func dumpFds(fds []FileDescriptor, indentation uint) string {
-	slices.SortFunc(fds, func(a, b FileDescriptor) bool { return a.FdNo() < b.FdNo() })
+	slices.SortFunc(fds, func(a, b FileDescriptor) int { return a.FdNo() - b.FdNo() })
 	var out strings.Builder
 	for idx, fd := range fds {
 		if idx > 0 {
