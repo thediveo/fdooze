@@ -3,6 +3,7 @@
 
 [![PkgGoDev](https://img.shields.io/badge/-reference-blue?logo=go&logoColor=white&labelColor=505050)](https://pkg.go.dev/github.com/thediveo/fdooze)
 [![GitHub](https://img.shields.io/github/license/thediveo/fdooze)](https://img.shields.io/github/license/thediveo/fdooze)
+![build and test](https://github.com/thediveo/fdooze/actions/workflows/buildandtest.yaml/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/thediveo/fdooze)](https://goreportcard.com/report/github.com/thediveo/fdooze)
 ![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
 
@@ -14,15 +15,8 @@ descriptors](https://man7.org/linux/man-pages/man2/open.2.html#DESCRIPTION).
 > descriptor information requires using highly system-specific APIs and the
 > descriptor information varies across different systems (if available at all).
 
-## Installation
-
-In your project (with a `go.mod`) run
-
-```go
-go get github.com/thediveo/fdooze@latest
-```
-
-to get and install the latest stable release.
+For devcontainer instructions, please see the [section "DevContainer"
+below](#devcontainer).
 
 ## Usage
 
@@ -135,6 +129,18 @@ the launched process has opened its first file or network socket. In case of
 network-facing services this will be when the listening transport port has
 become available.
 
+## DevContainer
+
+> [!CAUTION]
+>
+> Do **not** use VSCode's "~~Dev Containers: Clone Repository in Container
+> Volume~~" command, as it is utterly broken by design, ignoring
+> `.devcontainer/devcontainer.json`.
+
+1. `git clone https://github.com/thediveo/enumflag`
+2. in VSCode: Ctrl+Shift+P, "Dev Containers: Open Workspace in Container..."
+3. select `enumflag.code-workspace` and off you go...
+
 ## Go Version Support
 
 `fdooze` supports versions of Go that are noted by the Go release policy, that
@@ -148,5 +154,5 @@ issues with plumbing file descriptors properly.
 
 ## Copyright and License
 
-`fdooze` is Copyright 2022-23 Harald Albrecht, and licensed under the Apache
+`fdooze` is Copyright 2022, 2025 Harald Albrecht, and licensed under the Apache
 License, Version 2.0.
