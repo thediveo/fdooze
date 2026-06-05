@@ -50,7 +50,7 @@ var _ = Describe("HaveLeakedFds matcher", func() {
 
 		f, err := os.Open("have_leaked_fds_test.go")
 		Expect(err).NotTo(HaveOccurred())
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 
 		m := HaveLeakedFds(goods)
 		oozed, err := m.Match(Filedescriptors())

@@ -51,9 +51,9 @@ func Filedescriptors() []FileDescriptor {
 	return fds
 }
 
-// Filedescriptors returns the list of currently open file descriptors in form
-// of FileDescriptor objects for the process identified by pid. If the calling
-// process does not possess the necessary access rights to the process
+// ProcessFiledescriptors returns the list of currently open file descriptors in
+// form of FileDescriptor objects for the process identified by pid. If the
+// calling process does not possess the necessary access rights to the process
 // identified by pid an error is returned instead.
 func ProcessFiledescriptors(pid int) ([]FileDescriptor, error) {
 	return filedescriptors(fmt.Sprintf("/proc/%d/fd", pid))
@@ -68,7 +68,7 @@ func filedescriptors(fdDirPath string) ([]FileDescriptor, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer fdfilesdir.Close()
+	defer func() { _ = fdfilesdir.Close() }()
 	// In case we now read the open fds from our process's fd directory, we
 	// cannot avoid but to include this directory read fd also, so we need to
 	// skip and drop it later when fetching fd details.
@@ -167,7 +167,7 @@ func newFiledesc(fdNo int, base string) (filedesc, error) {
 	if err != nil {
 		return filedesc{}, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	return fdFromReader(fdNo, file)
 }
 

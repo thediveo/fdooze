@@ -19,20 +19,19 @@ package fdooze
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/onsi/gomega/format" // That's fine ... because this is a package used only in tests anyway
 )
 
-var fdsT = reflect.TypeOf([]FileDescriptor{})
+var fdsT = reflect.TypeFor[[]FileDescriptor]()
 
 // toFds returns actual as a slice of FileDescriptors, or an error if actual
 // isn't a slice of FileDescriptors. matchername specifies the name of the
 // matcher to be included in the error message in case of an invalid actual
 // type.
-func toFds(actual interface{}, matchername string) ([]FileDescriptor, error) {
+func toFds(actual any, matchername string) ([]FileDescriptor, error) {
 	val := reflect.ValueOf(actual)
 	switch val.Kind() {
 	case reflect.Array, reflect.Slice:

@@ -17,8 +17,9 @@ package main
 import (
 	"net"
 
-	"github.com/thediveo/fdooze/filedesc/test/canary/cage"
 	"golang.org/x/sys/unix"
+
+	"github.com/thediveo/fdooze/filedesc/test/canary/cage"
 )
 
 func main() {
@@ -26,9 +27,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer unix.Close(canaryfd)
+	defer func() { _ = unix.Close(canaryfd) }()
 
-	unix.Connect(canaryfd, &unix.SockaddrInet4{
+	_ = unix.Connect(canaryfd, &unix.SockaddrInet4{
 		// https://tip.golang.org/ref/spec#Conversions, sub heading "Conversions
 		// from slice to array or array pointer"
 		Addr: *(*[4]byte)(net.ParseIP(cage.IP).To4()),

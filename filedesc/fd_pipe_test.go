@@ -42,8 +42,8 @@ var _ = Describe("pipe fd", func() {
 			Expect(unix.Pipe(pipefds[:])).To(Succeed())
 			Expect(pipefds).To(HaveEach(Not(BeZero())))
 			DeferCleanup(func() {
-				unix.Close(pipefds[0])
-				unix.Close(pipefds[1])
+				_ = unix.Close(pipefds[0])
+				_ = unix.Close(pipefds[1])
 			})
 		})
 

@@ -29,11 +29,12 @@ import (
 
 	"golang.org/x/sys/unix"
 
+	"github.com/thediveo/fdooze/filedesc/test/canary/cage"
+
 	"github.com/onsi/gomega/gexec"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/thediveo/fdooze/filedesc/test/canary/cage"
 	. "github.com/thediveo/success"
 )
 
@@ -116,7 +117,7 @@ var _ = Describe("file descriptors", func() {
 
 		It("finds this process's file descriptors", func() {
 			fd := Successful(unix.Socket(unix.AF_UNIX, unix.SOCK_STREAM, 0))
-			defer unix.Close(fd)
+			defer func() { _ = unix.Close(fd) }()
 
 			fdescs := Filedescriptors()
 			Expect(fdescs).NotTo(BeEmpty())

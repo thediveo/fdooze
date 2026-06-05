@@ -20,12 +20,13 @@ import (
 	"errors"
 	"io/fs"
 
-	"github.com/onsi/gomega/gexec"
 	"github.com/thediveo/fdooze/filedesc"
+
+	"github.com/onsi/gomega/gexec"
 )
 
-// Filedescriptors returns the list of currently open file descriptors for the
-// process specified by session.
+// FiledescriptorsFor returns the list of currently open file descriptors for
+// the process specified by session.
 func FiledescriptorsFor(session *gexec.Session) ([]filedesc.FileDescriptor, error) {
 	if session == nil || session.Command == nil {
 		return nil, errors.New("invalid session or session command")

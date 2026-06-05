@@ -20,7 +20,7 @@ func primeIO() {
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 }
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	fmt.Println("LEAK")
 	_, _ = r.ReadString('\n')
 
-	f.Close()
+	_ = f.Close()
 	fmt.Println("PLUMBED")
 	_, _ = r.ReadString('\n')
 }

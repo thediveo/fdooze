@@ -44,7 +44,7 @@ var _ = Describe("socket descriptors", func() {
 			cwd := Successful(os.Getwd())
 			Expect(os.Chdir("test")).To(Succeed())
 			DeferCleanup(func() {
-				os.Chdir(cwd)
+				Expect(os.Chdir(cwd)).To(Succeed())
 			})
 		})
 
@@ -77,7 +77,7 @@ var _ = Describe("socket descriptors", func() {
 		BeforeEach(func() {
 			sockfd = Successful(unix.Socket(unix.AF_UNIX, unix.SOCK_STREAM, 0))
 			DeferCleanup(func() {
-				unix.Close(sockfd)
+				Expect(unix.Close(sockfd)).To(Succeed())
 			})
 		})
 
@@ -137,7 +137,7 @@ var _ = Describe("socket descriptors", func() {
 
 	It("returns correct socket inode number, domain, type, protocol", func() {
 		fd := Successful(unix.Socket(unix.AF_UNIX, unix.SOCK_STREAM, 0))
-		defer unix.Close(fd)
+		defer func() { _ = unix.Close(fd) }()
 		fdesc := Successful(NewSocketFd(
 			fd, "/proc/self/fd", "socket:[123456]"))
 		sockfd := fdesc.(*SocketFd)
@@ -152,7 +152,7 @@ var _ = Describe("socket descriptors", func() {
 		It("understands a unix socket", func() {
 			By("creating a unix socket the hard way")
 			fd := Successful(unix.Socket(unix.AF_UNIX, unix.SOCK_STREAM, 0))
-			defer unix.Close(fd)
+			defer func() { _ = unix.Close(fd) }()
 
 			By("discovering the unbound (\"unnamed\") unix socket given only the fd")
 			fdesc, err := New(fd)
@@ -182,7 +182,7 @@ var _ = Describe("socket descriptors", func() {
 			By("...connecting, and accepting")
 			fd2, err := unix.Socket(unix.AF_UNIX, unix.SOCK_STREAM, 0)
 			Expect(err).NotTo(HaveOccurred())
-			defer unix.Close(fd2)
+			defer func() { _ = unix.Close(fd2) }()
 			done := make(chan struct{})
 			accepted := make(chan struct{})
 			defer close(done)
@@ -191,7 +191,7 @@ var _ = Describe("socket descriptors", func() {
 				connfd, _, err := unix.Accept(fd)
 				close(accepted)
 				Expect(err).NotTo(HaveOccurred())
-				defer unix.Close(connfd)
+				defer func() { _ = unix.Close(connfd) }()
 				<-done
 			}()
 			Expect(unix.Connect(fd2, &unix.SockaddrUnix{Name: abstractName})).NotTo(HaveOccurred())
@@ -215,7 +215,7 @@ var _ = Describe("socket descriptors", func() {
 			By("creating an AF_INET socket the hard way")
 			fd, err := unix.Socket(unix.AF_INET, unix.SOCK_DGRAM, 0)
 			Expect(err).NotTo(HaveOccurred())
-			defer unix.Close(fd)
+			defer func() { _ = unix.Close(fd) }()
 
 			By("discovering the unbound (\"unnamed\") AF_INET socket given only the fd")
 			fdesc, err := New(fd)
@@ -231,7 +231,7 @@ var _ = Describe("socket descriptors", func() {
 			By("creating an AF_INET6 socket the hard way")
 			fd, err := unix.Socket(unix.AF_INET6, unix.SOCK_DGRAM, 0)
 			Expect(err).NotTo(HaveOccurred())
-			defer unix.Close(fd)
+			defer func() { _ = unix.Close(fd) }()
 
 			By("discovering the unbound (\"unnamed\") AF_INET6 socket given only the fd")
 			fdesc, err := New(fd)

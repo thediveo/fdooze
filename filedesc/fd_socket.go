@@ -72,12 +72,12 @@ func NewSocketFd(fdNo int, base string, linkDest string) (FileDescriptor, error)
 		if err != nil {
 			return nil, err
 		}
-		defer unix.Close(pidFd)
+		defer func() { _ = unix.Close(pidFd) }()
 		useableFd, err /* no ":=" */ = unix.PidfdGetfd(pidFd, fdNo, 0)
 		if err != nil {
 			return nil, err
 		}
-		defer unix.Close(useableFd)
+		defer func() { _ = unix.Close(useableFd) }()
 	}
 
 	// Get the parameters from the call to socket(domain, type, protocol); we
@@ -146,15 +146,15 @@ func (s SocketFd) Description(indentation uint) string {
 	if s.listening {
 		buff.WriteString("listening ")
 	}
-	buff.WriteString(fmt.Sprintf("socket(%s, %s, %s), ino %d",
-		s.domain.String(), s.typ.String(), s.protocol.String(s.domain), s.ino))
+	fmt.Fprintf(&buff, "socket(%s, %s, %s), ino %d",
+		s.domain.String(), s.typ.String(), s.protocol.String(s.domain), s.ino)
 
 	buff.WriteString(newindent)
-	buff.WriteString(fmt.Sprintf("local %q", s.local.String()))
+	fmt.Fprintf(&buff, "local %q", s.local.String())
 
 	if s.peer.Sockaddr != nil {
 		buff.WriteString(newindent)
-		buff.WriteString(fmt.Sprintf("peer %q", s.peer.String()))
+		fmt.Fprintf(&buff, "peer %q", s.peer.String())
 	}
 
 	return buff.String()

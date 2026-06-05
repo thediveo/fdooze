@@ -35,7 +35,7 @@ var _ = Describe("file path fd", func() {
 
 	It("returns correct path information", func() {
 		fd := Successful(unix.Open("fd_path_test.go", unix.O_RDONLY, 0))
-		defer unix.Close(fd)
+		defer func() { _ = unix.Close(fd) }()
 
 		fdesc := Successful(New(fd))
 		Expect(fdesc).To(HaveField("Path()", MatchRegexp("/filedesc/fd_path_test.go$")))
@@ -46,7 +46,7 @@ var _ = Describe("file path fd", func() {
 
 	It("determines equality correctly", func() {
 		fd := Successful(unix.Open("fd_path_test.go", unix.O_RDONLY, 0))
-		defer unix.Close(fd)
+		defer func() { _ = unix.Close(fd) }()
 
 		fdesc := Successful(New(fd))
 		Expect(fdesc.Equal(nil)).To(BeFalse())

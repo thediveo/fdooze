@@ -35,7 +35,7 @@ var _ = Describe("anonymous inode fd", func() {
 
 	It("returns the correct anonymous inode file type and description", func() {
 		fd := Successful(unix.Eventfd(42, unix.EFD_CLOEXEC))
-		defer unix.Close(fd)
+		defer func() { _ = unix.Close(fd) }()
 
 		fdesc := Successful(New(fd))
 		anonfd := fdesc.(*AnonInodeFd)
@@ -46,7 +46,7 @@ var _ = Describe("anonymous inode fd", func() {
 
 	It("determines equality correctly", func() {
 		fd := Successful(unix.Eventfd(42, unix.EFD_CLOEXEC))
-		defer unix.Close(fd)
+		defer func() { _ = unix.Close(fd) }()
 
 		fdesc := Successful(New(fd))
 		Expect(fdesc.Equal(nil)).To(BeFalse())

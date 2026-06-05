@@ -19,17 +19,17 @@ package session
 import (
 	"os/exec"
 
-	"github.com/onsi/gomega"
-	"github.com/onsi/gomega/gbytes"
-	"github.com/onsi/gomega/gexec"
 	"github.com/thediveo/fdooze"
 	"github.com/thediveo/fdooze/filedesc"
+
+	"github.com/onsi/gomega/gbytes"
+	"github.com/onsi/gomega/gexec"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-func HaveFdWithPath(matcher gomega.OmegaMatcher) gomega.OmegaMatcher {
+func HaveFdWithPath(matcher OmegaMatcher) OmegaMatcher {
 	return WithTransform(
 		func(fd filedesc.FileDescriptor) string {
 			file, ok := fd.(*filedesc.PathFd)

@@ -48,7 +48,7 @@ type ignoringFds struct {
 // Match succeeds if actual is a [filedesc.FileDescriptor] that is contained in
 // the set of expected file descriptors. Containment uses
 // [filedesc.FileDescriptor.Equal] to test for file descriptor equality.
-func (matcher *ignoringFds) Match(actual interface{}) (success bool, err error) {
+func (matcher *ignoringFds) Match(actual any) (success bool, err error) {
 	actualFd, ok := actual.(FileDescriptor)
 	if !ok {
 		return false, fmt.Errorf(
@@ -64,7 +64,7 @@ func (matcher *ignoringFds) Match(actual interface{}) (success bool, err error) 
 
 // FailureMessage returns a failure message if the actual file descriptor isn't
 // in the set of file descriptors to be ignored.
-func (matcher *ignoringFds) FailureMessage(actual interface{}) (message string) {
+func (matcher *ignoringFds) FailureMessage(actual any) (message string) {
 	expected := make([]FileDescriptor, 0, len(matcher.ignoreFds))
 	for _, fd := range matcher.ignoreFds {
 		expected = append(expected, fd)
@@ -76,7 +76,7 @@ func (matcher *ignoringFds) FailureMessage(actual interface{}) (message string) 
 
 // NegatedFailureMessage returns a failure message if the actual file descriptor
 // actually is in the set of file descriptors to be ignored.
-func (matcher *ignoringFds) NegatedFailureMessage(actual interface{}) (message string) {
+func (matcher *ignoringFds) NegatedFailureMessage(actual any) (message string) {
 	expected := make([]FileDescriptor, 0, len(matcher.ignoreFds))
 	for _, fd := range matcher.ignoreFds {
 		expected = append(expected, fd)

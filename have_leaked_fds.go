@@ -77,7 +77,7 @@ type haveLeakedFdsMatcher struct {
 	leaked  []FileDescriptor
 }
 
-func (matcher *haveLeakedFdsMatcher) Match(actual interface{}) (success bool, err error) {
+func (matcher *haveLeakedFdsMatcher) Match(actual any) (success bool, err error) {
 	actualFds, err := toFds(actual, "HaveLeakedFds")
 	if err != nil {
 		return false, err
@@ -104,14 +104,14 @@ nextFd:
 
 // FailureMessage returns a failure message if there are leaked file
 // descriptors, listing the leaked fds with (some) detail information.
-func (matcher *haveLeakedFdsMatcher) FailureMessage(actual interface{}) (message string) {
+func (matcher *haveLeakedFdsMatcher) FailureMessage(actual any) (message string) {
 	return fmt.Sprintf("Expected to leak %d file descriptors:\n%s",
 		len(matcher.leaked), dumpFds(matcher.leaked, 1))
 }
 
 // NegatedFailureMessage returns a negated failure message if there aren't any
 // leaked file descriptors.
-func (matcher *haveLeakedFdsMatcher) NegatedFailureMessage(actual interface{}) (message string) {
+func (matcher *haveLeakedFdsMatcher) NegatedFailureMessage(actual any) (message string) {
 	return fmt.Sprintf("Expected not to leak %d file descriptors:\n%s",
 		len(matcher.leaked), dumpFds(matcher.leaked, 1))
 }
