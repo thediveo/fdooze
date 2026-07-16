@@ -4,8 +4,7 @@
 [![PkgGoDev](https://img.shields.io/badge/-reference-blue?logo=go&logoColor=white&labelColor=505050)](https://pkg.go.dev/github.com/thediveo/fdooze)
 [![GitHub](https://img.shields.io/github/license/thediveo/fdooze)](https://img.shields.io/github/license/thediveo/fdooze)
 ![build and test](https://github.com/thediveo/fdooze/actions/workflows/buildandtest.yaml/badge.svg?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/thediveo/fdooze)](https://goreportcard.com/report/github.com/thediveo/fdooze)
-![Coverage](https://img.shields.io/badge/Coverage-100.0%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-99.7%25-brightgreen)
 
 `fdooze` complements [Gomega](https://github.com/onsi/gomega) with tests to
 detect leaked ("oozed") [file
